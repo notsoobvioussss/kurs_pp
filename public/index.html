@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>O&G Threat Lens</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="gradient-bg"></div>
+    <div class="grid-overlay"></div>
+    <header class="hero">
+      <div class="brand">
+        <div class="logo">O&G</div>
+        <div>
+          <p class="eyebrow">Радар инцидентов</p>
+          <h1>Нефтегазовые угрозы.</h1>
+          <p class="lede">
+            Живая лента инцидентов и киберугроз для нефтегаза: физическое проникновение, саботаж SCADA, финансовые атаки, ESG‑инциденты.
+          </p>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <p class="label">Новых за 72ч</p>
+          <p class="stat" id="stat-new">—</p>
+          <p class="hint">Фильтр по свежим публикациям</p>
+        </div>
+        <div class="stat-card">
+          <p class="label">Всего кейсов</p>
+          <p class="stat" id="stat-total">—</p>
+          <p class="hint">Парсится из открытых источников</p>
+        </div>
+        <div class="stat-card">
+          <p class="label">Источники</p>
+          <p class="stat" id="stat-sources">—</p>
+          <p class="hint" id="stat-generated">—</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="controls">
+        <div class="control-left">
+          <div class="control-block">
+            <label>Поиск</label>
+            <input type="search" id="search" placeholder="pipeline, ransomware, explosion…" />
+          </div>
+          <div class="control-block">
+            <label>Категории</label>
+            <div id="category-chips" class="chips"></div>
+          </div>
+        </div>
+        <div class="control-right">
+          <div class="toggle">
+            <input type="checkbox" id="freshOnly" />
+            <label for="freshOnly">Только последние 7 дней</label>
+          </div>
+          <div class="toggle">
+            <input type="checkbox" id="sortRecent" checked />
+            <label for="sortRecent">Сначала свежие</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="feed">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Лента инцидентов</p>
+            <h2>Что случилось</h2>
+          </div>
+          <button id="refresh" class="ghost-btn">Перегрузить данные</button>
+        </div>
+        <div id="feed" class="cards"></div>
+      </section>
+
+      <section class="matrix">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Матрица рисков</p>
+            <h2>Топ-угрозы из списка пользователя</h2>
+          </div>
+          <p class="hint">
+            Выжимка из вашего списка: физика, ICS, финансы, инсайдеры, экология.
+          </p>
+        </div>
+        <div id="matrix" class="matrix-grid"></div>
+      </section>
+    </main>
+
+    <footer class="footer"></footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
