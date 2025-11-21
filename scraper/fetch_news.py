@@ -56,6 +56,42 @@ FEEDS: List[Dict[str, str]] = [
         "name": "РБК (общая лента)",
         "url": "https://rssexport.rbc.ru/rbcnews/news/",
     },
+    {
+        "name": "Интерфакс (главные новости)",
+        "url": "https://www.interfax.ru/rss.asp",
+    },
+    {
+        "name": "ТАСС (главные новости)",
+        "url": "https://tass.com/rss/v2.xml",
+    },
+    {
+        "name": "Лента.ru (главное)",
+        "url": "https://lenta.ru/rss",
+    },
+    {
+        "name": "Коммерсантъ (все новости)",
+        "url": "https://www.kommersant.ru/RSS/news.xml",
+    },
+    {
+        "name": "Ведомости (лента)",
+        "url": "https://www.vedomosti.ru/rss/news",
+    },
+    {
+        "name": "Газета.ru (главные)",
+        "url": "https://www.gazeta.ru/export/rss/lenta.xml",
+    },
+    {
+        "name": "Reuters Energy",
+        "url": "https://feeds.reuters.com/reuters/energyNews",
+    },
+    {
+        "name": "OilPrice (energy)",
+        "url": "https://oilprice.com/rss/main",
+    },
+    {
+        "name": "Bloomberg Energy",
+        "url": "https://feeds.bloomberg.com/energy.rss",
+    },
 ]
 
 

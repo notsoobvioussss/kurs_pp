@@ -224,6 +224,11 @@ const ENERGY_TERMS = [
   "рзу",
   "подстанция",
   "энергоузел",
+  "энергетичес",
+  "теплоснаб",
+  "электроэнерг",
+  "энергохозяйств",
+  "диспетчерск",
 ];
 
 const PERIODS = {
@@ -235,7 +240,7 @@ const PERIODS = {
   all: { label: "Всё время", ms: null },
 };
 
-const MAX_FEED = 200;
+const MAX_FEED = 400;
 const THREAT_TEXT = `
 Несанкционированное физическое проникновение в серверные помещения через обход охраны (включая использование поддельных пропусков, вскрытие дверей или поставку сотрудника внешними злоумышленниками).
 Кража серверного и сетевого оборудования (серверы, СХД, коммутаторы, маршрутизаторы) с целью извлечения носителей информации или вывоза компонентов, критичных для функционирования систем.
@@ -839,45 +844,7 @@ function renderThreatMatrix() {
 }
 
 function downloadCsv() {
-  if (!state.filteredAll.length) {
-    alert("Нет данных для выгрузки по текущим фильтрам");
-    return;
-  }
-
-  const rows = [
-    ["title", "source", "published", "link", "categories", "threat_matches", "summary"],
-    ...state.filteredAll.map((item) => [
-      item.title,
-      item.source,
-      item.published,
-      item.link,
-      (item.categories || []).join("; "),
-      (item.threatMatches || []).join(" | "),
-      item.summary || "",
-    ]),
-  ];
-
-  const csv = rows
-    .map((row) =>
-      row
-        .map((cell) => {
-          const safe = (cell || "").toString().replace(/"/g, '""');
-          return `"${safe}"`;
-        })
-        .join(",")
-    )
-    .join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  const suffix = state.category === "Все" ? "all" : normalizeSlug(state.category);
-  a.href = url;
-  a.download = `threat-feed-${suffix}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  alert("CSV выключен. Используйте Excel.");
 }
 
 function downloadExcel() {
@@ -897,12 +864,17 @@ function downloadExcel() {
     item.summary || "",
   ]);
 
+  const sanitize = (value) => {
+    const str = (value || "").toString().replace(/\r?\n+/g, " ").trim();
+    if (/^[=+\-@]/.test(str)) return `'${str}`;
+    return str;
+  };
+
   const cells = (values) =>
     values
       .map(
         (value) =>
-          `<Cell><Data ss:Type="String">${(value || "")
-            .toString()
+          `<Cell><Data ss:Type="String">${sanitize(value)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")}</Data></Cell>`
@@ -943,7 +915,6 @@ function bindControls() {
   });
 
   document.getElementById("refresh").addEventListener("click", () => loadData());
-  document.getElementById("exportCsv").addEventListener("click", downloadCsv);
   document.getElementById("exportExcel").addEventListener("click", downloadExcel);
 }
 
