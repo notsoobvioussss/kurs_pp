@@ -38,6 +38,8 @@ const CATEGORY_KEYWORDS = {
     "экстремист",
     "подрыв",
     "группировк",
+    "саботаж",
+    "заложников",
   ],
   Физическая: [
     "проникновен",
@@ -52,6 +54,9 @@ const CATEGORY_KEYWORDS = {
     "кабельн",
     "видеонаблюд",
     "физич",
+    "цод",
+    "стойк",
+    "обход охраны",
   ],
   Экология: [
     "эколог",
@@ -64,6 +69,8 @@ const CATEGORY_KEYWORDS = {
     "утечка неф",
     "мониторинг среды",
     "отход",
+    "эмисси",
+    "шлам",
   ],
   Энергетика: [
     "подстанц",
@@ -76,6 +83,9 @@ const CATEGORY_KEYWORDS = {
     "блэкаут",
     "фидер",
     "энергобаланс",
+    "грщ",
+    "распределит",
+    "генерац",
   ],
   Инфобез: [
     "кибератак",
@@ -93,6 +103,9 @@ const CATEGORY_KEYWORDS = {
     "ics",
     "асу тп",
     "учетн",
+    "vpn",
+    "учетные записи",
+    "данные сотрудников",
   ],
   Психология: [
     "выгорание",
@@ -105,6 +118,8 @@ const CATEGORY_KEYWORDS = {
     "забастов",
     "кадров",
     "эмоциональ",
+    "вербовк",
+    "дезинформац",
   ],
   Техногенная: [
     "авария",
@@ -117,6 +132,9 @@ const CATEGORY_KEYWORDS = {
     "корроз",
     "турбин",
     "разрушение",
+    "обрушение",
+    "авария нпз",
+    "авария скважин",
   ],
   Пожарная: [
     "пожар",
@@ -129,6 +147,7 @@ const CATEGORY_KEYWORDS = {
     "аупт",
     "дым",
     "эвакуац",
+    "огневые работы",
   ],
   Экономическая: [
     "финанс",
@@ -141,6 +160,10 @@ const CATEGORY_KEYWORDS = {
     "вымогатель",
     "контрагент",
     "транзак",
+    "логист",
+    "поставк",
+    "закуп",
+    "отчетност",
   ],
   Интеллектуальная: [
     "патент",
@@ -153,8 +176,34 @@ const CATEGORY_KEYWORDS = {
     "инженерн",
     "секретн",
     "цифровой двойник",
+    "seismic",
+    "petrel",
+    "геологическ",
   ],
 };
+
+const OIL_GAS_TERMS = [
+  "нефтегаз",
+  "нефть",
+  "газ",
+  "lng",
+  "спг",
+  "буров",
+  "скважин",
+  "газопровод",
+  "трубопровод",
+  "нефтепровод",
+  "нпз",
+  "нефтепереработ",
+  "нефтехим",
+  "месторожден",
+  "платформа",
+  "refinery",
+  "pipeline",
+  "oil",
+  "petro",
+  "petroleum",
+];
 
 const PERIODS = {
   "7d": { label: "7 дней", ms: 7 * 24 * 60 * 60 * 1000 },
@@ -473,7 +522,7 @@ let state = {
   filteredAll: [],
   filtered: [],
   category: "Все",
-  period: "90d",
+  period: "1y",
   sortRecent: true,
   search: "",
   generatedAt: "",
@@ -498,6 +547,10 @@ function classifyCategories(blob) {
   return Array.from(new Set(hits));
 }
 
+function isOilGas(blob) {
+  return OIL_GAS_TERMS.some((hint) => blob.includes(hint));
+}
+
 function findThreatMatches(blob) {
   const matches = [];
   THREAT_LOOKUP.forEach((tokens, idx) => {
@@ -511,6 +564,7 @@ function findThreatMatches(blob) {
 
 function hydrateItem(item) {
   const blob = normalizeText([item.title, item.summary, item.source].join(" "));
+  if (!isOilGas(blob)) return null;
   return {
     ...item,
     published: item.published || "",
@@ -523,7 +577,7 @@ async function loadData() {
   try {
     const res = await fetch("./data/news.json", { cache: "no-store" });
     const data = await res.json();
-    state.items = (data.items || []).map(hydrateItem);
+    state.items = (data.items || []).map(hydrateItem).filter(Boolean);
     state.generatedAt = data.generated_at;
     state.sources = data.sources || [];
     applyFilters();

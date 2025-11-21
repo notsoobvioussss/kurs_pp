@@ -21,16 +21,24 @@ from typing import Dict, List, Optional
 
 FEEDS: List[Dict[str, str]] = [
     {
-        "name": "Google Новости: нефтегаз кибератаки",
-        "url": "https://news.google.com/rss/search?q=%D0%BD%D0%B5%D1%84%D1%82%D0%B5%D0%B3%D0%B0%D0%B7+%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D0%B0%D1%82%D0%B0%D0%BA%D0%B0&hl=ru&gl=RU&ceid=RU:ru",
+        "name": "Google Новости: нефтегаз инцидент",
+        "url": "https://news.google.com/rss/search?q=%D0%BD%D0%B5%D1%84%D1%82%D0%B5%D0%B3%D0%B0%D0%B7+%D0%B8%D0%BD%D1%86%D0%B8%D0%B4%D0%B5%D0%BD%D1%82&hl=ru&gl=RU&ceid=RU:ru",
+    },
+    {
+        "name": "Google Новости: НПЗ авария пожар",
+        "url": "https://news.google.com/rss/search?q=%D0%9D%D0%9F%D0%97+%D0%B0%D0%B2%D0%B0%D1%80%D0%B8%D1%8F+%D0%BF%D0%BE%D0%B6%D0%B0%D1%80&hl=ru&gl=RU&ceid=RU:ru",
     },
     {
         "name": "Google Новости: газопровод авария взрыв",
         "url": "https://news.google.com/rss/search?q=%D0%B3%D0%B0%D0%B7%D0%BE%D0%BF%D1%80%D0%BE%D0%B2%D0%BE%D0%B4+%D0%B0%D0%B2%D0%B0%D1%80%D0%B8%D1%8F+%D0%B2%D0%B7%D1%80%D1%8B%D0%B2&hl=ru&gl=RU&ceid=RU:ru",
     },
     {
-        "name": "Google Новости: НПЗ кибербезопасность",
-        "url": "https://news.google.com/rss/search?q=%D0%9D%D0%9F%D0%97+%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%BD%D0%BE%D1%81%D1%82%D1%8C&hl=ru&gl=RU&ceid=RU:ru",
+        "name": "Google Новости: нефтегаз кибератака",
+        "url": "https://news.google.com/rss/search?q=%D0%BD%D0%B5%D1%84%D1%82%D0%B5%D0%B3%D0%B0%D0%B7+%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D0%B0%D1%82%D0%B0%D0%BA%D0%B0&hl=ru&gl=RU&ceid=RU:ru",
+    },
+    {
+        "name": "Google Новости: нефтебаза утечка разлив",
+        "url": "https://news.google.com/rss/search?q=%D0%BD%D0%B5%D1%84%D1%82%D0%B5%D0%B1%D0%B0%D0%B7%D0%B0+%D1%83%D1%82%D0%B5%D1%87%D0%BA%D0%B0+%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D0%B2&hl=ru&gl=RU&ceid=RU:ru",
     },
     {
         "name": "SecurityLab (кибербезопасность)",
@@ -43,6 +51,10 @@ FEEDS: List[Dict[str, str]] = [
     {
         "name": "ComNews (телеком/промышленность)",
         "url": "https://www.comnews.ru/rss",
+    },
+    {
+        "name": "РБК (общая лента)",
+        "url": "https://rssexport.rbc.ru/rbcnews/news/",
     },
 ]
 
@@ -57,6 +69,8 @@ KEYWORDS = {
         "боевик",
         "заложник",
         "экстремист",
+        "саботаж",
+        "заложников",
     ],
     "Физическая": [
         "проникновен",
@@ -70,6 +84,9 @@ KEYWORDS = {
         "видеонаблюд",
         "physical",
         "intrusion",
+        "цод",
+        "стойк",
+        "обход охраны",
     ],
     "Экология": [
         "эколог",
@@ -80,6 +97,8 @@ KEYWORDS = {
         "сток",
         "сероводород",
         "утечка неф",
+        "эмисси",
+        "шлам",
     ],
     "Энергетика": [
         "подстанц",
@@ -92,6 +111,9 @@ KEYWORDS = {
         "блэкаут",
         "фидер",
         "энергобаланс",
+        "распределит",
+        "генерац",
+        "грщ",
     ],
     "Инфобез": [
         "кибератак",
@@ -108,6 +130,8 @@ KEYWORDS = {
         "scada",
         "ics",
         "асу тп",
+        "vpn",
+        "учетные записи",
     ],
     "Психология": [
         "выгорание",
@@ -118,6 +142,8 @@ KEYWORDS = {
         "забастов",
         "лояльн",
         "эмоциональ",
+        "вербовк",
+        "дезинформац",
     ],
     "Техногенная": [
         "авария",
@@ -128,6 +154,9 @@ KEYWORDS = {
         "гидрат",
         "корроз",
         "турбин",
+        "авария нпз",
+        "авария скважин",
+        "разрушение",
     ],
     "Пожарная": [
         "пожар",
@@ -139,6 +168,7 @@ KEYWORDS = {
         "аупт",
         "дым",
         "эвакуац",
+        "огневые работы",
     ],
     "Экономическая": [
         "финанс",
@@ -151,6 +181,10 @@ KEYWORDS = {
         "вымогатель",
         "контрагент",
         "транзак",
+        "логист",
+        "поставк",
+        "закуп",
+        "отчетност",
     ],
     "Интеллектуальная": [
         "патент",
@@ -162,8 +196,34 @@ KEYWORDS = {
         "чертеж",
         "инженерн",
         "секретн",
+        "seismic",
+        "petrel",
+        "геологическ",
     ],
 }
+
+OIL_GAS_TERMS = [
+    "нефтегаз",
+    "нефть",
+    "газ",
+    "lng",
+    "спг",
+    "буров",
+    "скважин",
+    "газопровод",
+    "трубопровод",
+    "нефтепровод",
+    "нпз",
+    "нефтепереработ",
+    "нефтехим",
+    "месторожден",
+    "платформа",
+    "refinery",
+    "pipeline",
+    "oil",
+    "petro",
+    "petroleum",
+]
 
 
 SSL_CONTEXT = ssl._create_unverified_context()
@@ -194,6 +254,11 @@ def classify(text: str) -> List[str]:
     return tags or ["Инфобез"]
 
 
+def is_oil_gas(text: str) -> bool:
+    low = text.lower()
+    return any(term in low for term in OIL_GAS_TERMS)
+
+
 def fetch_feed(source: Dict[str, str]) -> List[Dict[str, str]]:
     try:
         with urllib.request.urlopen(source["url"], context=SSL_CONTEXT, timeout=10) as resp:
@@ -214,7 +279,10 @@ def fetch_feed(source: Dict[str, str]) -> List[Dict[str, str]]:
         link = first_text(item.find("link"))
         desc = first_text(item.find("description"))
         pub = parsed_date(first_text(item.find("pubDate")))
-        category = classify(f"{title} {desc}")
+        blob = f"{title} {desc}"
+        if not is_oil_gas(blob):
+            continue
+        category = classify(blob)
         if not title or not link:
             continue
         items.append(
