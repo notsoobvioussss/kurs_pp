@@ -26,10 +26,10 @@
       <div class="brand">
         <div class="logo">O&G</div>
         <div>
-          <p class="eyebrow">Радар инцидентов</p
+          <p class="eyebrow">Радар инцидентов</p>
           <h1>Нефтегазовые угрозы.</h1>
           <p class="lede">
-            Живая лента инцидентов и киберугроз для нефтегаза: физическое проникновение, саботаж SCADA, финансовые атаки, ESG‑инциденты.
+            Живая лента инцидентов и киберугроз для нефтегаза: физическая безопасность, терроризм, ИБ, экология, энергетика, экономика и инсайдеры.
           </p>
         </div>
       </div>
@@ -40,9 +40,9 @@
           <p class="hint">Фильтр по свежим публикациям за неделю</p>
         </div>
         <div class="stat-card">
-          <p class="label">Всего кейсов</p>
+          <p class="label">Всего в выборке</p>
           <p class="stat" id="stat-total">—</p>
-          <p class="hint">Парсится из открытых источников</p>
+          <p class="hint">С учётом периода и категории</p>
         </div>
         <div class="stat-card">
           <p class="label">Источники</p>
@@ -60,19 +60,20 @@
             <input type="search" id="search" placeholder="газопровод, кибератака, пожар…" />
           </div>
           <div class="control-block">
-            <label>Категории</label>
+            <label>Категории (10)</label>
             <div id="category-chips" class="chips"></div>
           </div>
         </div>
         <div class="control-right">
-          <div class="toggle">
-            <input type="checkbox" id="freshOnly" />
-            <label for="freshOnly">Только последние 7 дней</label>
+          <div class="control-block compact">
+            <label>Период</label>
+            <select id="period"></select>
           </div>
           <div class="toggle">
             <input type="checkbox" id="sortRecent" checked />
             <label for="sortRecent">Сначала свежие</label>
           </div>
+          <button id="exportCsv" class="ghost-btn">Скачать CSV</button>
         </div>
       </section>
 
@@ -82,7 +83,7 @@
             <p class="eyebrow">Лента инцидентов</p>
             <h2>Что случилось</h2>
           </div>
-          <button id="refresh" class="ghost-btn">Перегрузить данные</button>
+          <button id="refresh" class="ghost-btn">Обновить данные</button>
         </div>
         <div id="feed" class="cards"></div>
       </section>
@@ -94,7 +95,7 @@
             <h2>Топ-угрозы из списка пользователя</h2>
           </div>
           <p class="hint">
-            Выжимка из вашего списка: физика, ICS, финансы, инсайдеры, экология.
+            Выжимка из пользовательского списка по 10 категориям: терроризм, физика, экология, энергетика, ИБ, психология, техногенные, пожарные, экономические и интеллектуальные.
           </p>
         </div>
         <div id="matrix" class="matrix-grid"></div>

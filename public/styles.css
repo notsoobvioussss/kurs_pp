@@ -199,6 +199,20 @@ input[type="search"] {
   font-size: 15px;
 }
 
+.control-block select {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.control-block.compact {
+  min-width: 180px;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -329,6 +343,9 @@ input[type="search"] {
   border-radius: 999px;
   font-size: 12px;
   border: 1px solid var(--card-border);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
 }
 
 .pill.orange {
@@ -343,7 +360,25 @@ input[type="search"] {
   color: #d3ffff;
 }
 
+.pill.purple {
+  background: rgba(111, 88, 255, 0.12);
+  border-color: rgba(111, 88, 255, 0.32);
+  color: #e3ddff;
+}
+
+.pill.muted {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #c9d5e8;
+}
+
 .card-footer {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.threat-tags {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
