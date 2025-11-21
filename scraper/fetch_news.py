@@ -92,6 +92,22 @@ FEEDS: List[Dict[str, str]] = [
         "name": "Bloomberg Energy",
         "url": "https://feeds.bloomberg.com/energy.rss",
     },
+    {
+        "name": "Google Новости: энергетика авария",
+        "url": "https://news.google.com/rss/search?q=%D1%8D%D0%BD%D0%B5%D1%80%D0%B3%D0%B5%D1%82%D0%B8%D0%BA%D0%B0+%D0%B0%D0%B2%D0%B0%D1%80%D0%B8%D1%8F&hl=ru&gl=RU&ceid=RU:ru",
+    },
+    {
+        "name": "Google Новости: ТЭК инцидент",
+        "url": "https://news.google.com/rss/search?q=%D0%A2%D0%AD%D0%9A+%D0%B8%D0%BD%D1%86%D0%B8%D0%B4%D0%B5%D0%BD%D1%82&hl=ru&gl=RU&ceid=RU:ru",
+    },
+    {
+        "name": "Google Новости: oil spill pipeline",
+        "url": "https://news.google.com/rss/search?q=oil+spill+pipeline&hl=en&gl=US&ceid=US:en",
+    },
+    {
+        "name": "Google Новости: gas pipeline sabotage",
+        "url": "https://news.google.com/rss/search?q=gas+pipeline+sabotage&hl=en&gl=US&ceid=US:en",
+    },
 ]
 
 
@@ -253,6 +269,15 @@ ENERGY_TERMS = [
     "энергоузел",
     "asdu",
     "аис куэ",
+    "энергетичес",
+    "теплоснаб",
+    "электроэнерг",
+    "энергохозяйств",
+    "диспетчерск",
+    "тэц",
+    "гэс",
+    "эс",
+    "энергообъект",
 ]
 
 OIL_GAS_TERMS = [
@@ -271,6 +296,17 @@ OIL_GAS_TERMS = [
     "нефтехим",
     "месторожден",
     "платформа",
+    "углеводород",
+    "нефтепродукт",
+    "бензин",
+    "добыча",
+    "отгрузка нефти",
+    "газпром",
+    "rosneft",
+    "роснефть",
+    "лукойл",
+    "татнефть",
+    "gazprom",
     "refinery",
     "pipeline",
     "oil",

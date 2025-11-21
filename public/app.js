@@ -198,6 +198,17 @@ const OIL_GAS_TERMS = [
   "нефтехим",
   "месторожден",
   "платформа",
+  "углеводород",
+  "нефтепродукт",
+  "бензин",
+  "добыча",
+  "отгрузка нефти",
+  "газпром",
+  "rosneft",
+  "роснефть",
+  "лукойл",
+  "татнефть",
+  "gazprom",
   "refinery",
   "pipeline",
   "oil",
@@ -229,6 +240,12 @@ const ENERGY_TERMS = [
   "электроэнерг",
   "энергохозяйств",
   "диспетчерск",
+  "тэц",
+  "гэc",
+  "эс",
+  "гэс",
+  "тсс",
+  "энергообъект",
 ];
 
 const PERIODS = {
@@ -896,7 +913,7 @@ function downloadExcel() {
   const a = document.createElement("a");
   const suffix = state.category === "Все" ? "all" : normalizeSlug(state.category);
   a.href = url;
-  a.download = `threat-feed-${suffix}.xls`;
+  a.download = `threat-feed-${suffix}.xml`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
