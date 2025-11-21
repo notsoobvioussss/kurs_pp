@@ -1,4 +1,5 @@
 const CHIPS = ["Все", "Физический доступ", "Кибератаки ICS/SCADA", "Финансы и мошенничество", "Персонал и инсайдеры", "Экология и безопасность"];
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 const CATEGORY_HINT = {
   "Физический доступ": "Несанкционированное проникновение / кража / саботаж оборудования",
@@ -99,7 +100,7 @@ async function loadData() {
 
 function applyFilters() {
   const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(now.getTime() - SEVEN_DAYS_MS);
   const search = normalizeText(state.search);
   let items = [...state.items];
 
@@ -138,10 +139,11 @@ function applyFilters() {
 }
 
 function renderStats() {
+  const nowTs = Date.now();
   const freshCount = state.items.filter((item) => {
     if (!item.published) return false;
     const d = new Date(item.published);
-    return (Date.now() - d.getTime()) / (1000 * 60 * 60) <= 72;
+    return nowTs - d.getTime() <= SEVEN_DAYS_MS;
   }).length;
 
   document.getElementById("stat-new").textContent = freshCount;
