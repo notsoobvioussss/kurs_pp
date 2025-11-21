@@ -205,6 +205,27 @@ const OIL_GAS_TERMS = [
   "petroleum",
 ];
 
+const ENERGY_TERMS = [
+  "энергетика",
+  "энергос",
+  "энергоснаб",
+  "электроснаб",
+  "подстанц",
+  "рза",
+  "ибп",
+  "дгу",
+  "кабели 6",
+  "кабели 10",
+  "линии электропередач",
+  "фидер",
+  "грэч",
+  "грщ",
+  "asdu",
+  "рзу",
+  "подстанция",
+  "энергоузел",
+];
+
 const PERIODS = {
   "7d": { label: "7 дней", ms: 7 * 24 * 60 * 60 * 1000 },
   "30d": { label: "30 дней", ms: 30 * 24 * 60 * 60 * 1000 },
@@ -523,7 +544,6 @@ let state = {
   filtered: [],
   category: "Все",
   period: "1y",
-  sortRecent: true,
   search: "",
   generatedAt: "",
   sources: [],
@@ -548,7 +568,7 @@ function classifyCategories(blob) {
 }
 
 function isOilGas(blob) {
-  return OIL_GAS_TERMS.some((hint) => blob.includes(hint));
+  return [...OIL_GAS_TERMS, ...ENERGY_TERMS].some((hint) => blob.includes(hint));
 }
 
 function findThreatMatches(blob) {
@@ -563,7 +583,7 @@ function findThreatMatches(blob) {
 }
 
 function hydrateItem(item) {
-  const blob = normalizeText([item.title, item.summary, item.source].join(" "));
+  const blob = normalizeText([item.title, item.summary].join(" "));
   if (!isOilGas(blob)) return null;
   return {
     ...item,
@@ -622,9 +642,7 @@ function applyFilters() {
     published: item.published || "",
   }));
 
-  if (state.sortRecent) {
-    items.sort((a, b) => new Date(b.published) - new Date(a.published));
-  }
+  items.sort((a, b) => new Date(b.published) - new Date(a.published));
 
   state.filteredAll = items;
   state.filtered = items.slice(0, MAX_FEED);
@@ -862,6 +880,57 @@ function downloadCsv() {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
+function downloadExcel() {
+  if (!state.filteredAll.length) {
+    alert("Нет данных для выгрузки по текущим фильтрам");
+    return;
+  }
+
+  const header = ["title", "source", "published", "link", "categories", "threat_matches", "summary"];
+  const rows = state.filteredAll.map((item) => [
+    item.title,
+    item.source,
+    item.published,
+    item.link,
+    (item.categories || []).join("; "),
+    (item.threatMatches || []).join(" | "),
+    item.summary || "",
+  ]);
+
+  const cells = (values) =>
+    values
+      .map(
+        (value) =>
+          `<Cell><Data ss:Type="String">${(value || "")
+            .toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")}</Data></Cell>`
+      )
+      .join("");
+
+  const xml = `<?xml version="1.0"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Worksheet ss:Name="ThreatFeed">
+    <Table>
+      <Row>${cells(header)}</Row>
+      ${rows.map((row) => `<Row>${cells(row)}</Row>`).join("")}
+    </Table>
+  </Worksheet>
+</Workbook>`;
+
+  const blob = new Blob([xml], { type: "application/vnd.ms-excel" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const suffix = state.category === "Все" ? "all" : normalizeSlug(state.category);
+  a.href = url;
+  a.download = `threat-feed-${suffix}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
 function bindControls() {
   document.getElementById("search").addEventListener("input", (e) => {
     state.search = e.target.value;
@@ -873,13 +942,9 @@ function bindControls() {
     applyFilters();
   });
 
-  document.getElementById("sortRecent").addEventListener("change", (e) => {
-    state.sortRecent = e.target.checked;
-    applyFilters();
-  });
-
   document.getElementById("refresh").addEventListener("click", () => loadData());
   document.getElementById("exportCsv").addEventListener("click", downloadCsv);
+  document.getElementById("exportExcel").addEventListener("click", downloadExcel);
 }
 
 renderPeriodOptions();

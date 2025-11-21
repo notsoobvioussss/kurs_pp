@@ -202,6 +202,23 @@ KEYWORDS = {
     ],
 }
 
+ENERGY_TERMS = [
+    "энергетика",
+    "энергос",
+    "энергоснаб",
+    "электроснаб",
+    "подстанц",
+    "рза",
+    "ибп",
+    "дгу",
+    "линии электропередач",
+    "фидер",
+    "грщ",
+    "энергоузел",
+    "asdu",
+    "аис куэ",
+]
+
 OIL_GAS_TERMS = [
     "нефтегаз",
     "нефть",
@@ -256,7 +273,7 @@ def classify(text: str) -> List[str]:
 
 def is_oil_gas(text: str) -> bool:
     low = text.lower()
-    return any(term in low for term in OIL_GAS_TERMS)
+    return any(term in low for term in (*OIL_GAS_TERMS, *ENERGY_TERMS))
 
 
 def fetch_feed(source: Dict[str, str]) -> List[Dict[str, str]]:

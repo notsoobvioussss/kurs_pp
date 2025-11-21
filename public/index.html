@@ -69,11 +69,8 @@
             <label>Период</label>
             <select id="period"></select>
           </div>
-          <div class="toggle">
-            <input type="checkbox" id="sortRecent" checked />
-            <label for="sortRecent">Сначала свежие</label>
-          </div>
-          <button id="exportCsv" class="ghost-btn">Скачать CSV</button>
+          <button id="exportCsv" class="ghost-btn">CSV</button>
+          <button id="exportExcel" class="ghost-btn">Excel</button>
         </div>
       </section>
 
@@ -92,10 +89,10 @@
         <div class="section-head">
           <div>
             <p class="eyebrow">Матрица рисков</p>
-            <h2>Топ-угрозы из списка пользователя</h2>
+            <h2>Используемые категории</h2>
           </div>
           <p class="hint">
-            Выжимка из пользовательского списка по 10 категориям: терроризм, физика, экология, энергетика, ИБ, психология, техногенные, пожарные, экономические и интеллектуальные.
+            10 применяемых категорий: терроризм, физика, экология, энергетика, ИБ, психология, техногенные, пожарные, экономические и интеллектуальные.
           </p>
         </div>
         <div id="matrix" class="matrix-grid"></div>
