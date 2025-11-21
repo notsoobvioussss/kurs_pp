@@ -40,6 +40,10 @@ const CATEGORY_KEYWORDS = {
     "группировк",
     "саботаж",
     "заложников",
+    "бомба",
+    "обстрел",
+    "дроны",
+    "теракты",
   ],
   Физическая: [
     "проникновен",
@@ -48,6 +52,10 @@ const CATEGORY_KEYWORDS = {
     "вскрыли",
     "охран",
     "кража оборуд",
+    "кража",
+    "воров",
+    "захват",
+    "охрана",
     "серверн",
     "кроссов",
     "пломб",
@@ -57,10 +65,12 @@ const CATEGORY_KEYWORDS = {
     "цод",
     "стойк",
     "обход охраны",
+    "инвентаризац",
   ],
   Экология: [
     "эколог",
     "разлив",
+    "пролив",
     "загрязн",
     "выброс",
     "пдк",
@@ -71,6 +81,9 @@ const CATEGORY_KEYWORDS = {
     "отход",
     "эмисси",
     "шлам",
+    "водоем",
+    "река",
+    "озеро",
   ],
   Энергетика: [
     "подстанц",
@@ -86,6 +99,10 @@ const CATEGORY_KEYWORDS = {
     "грщ",
     "распределит",
     "генерац",
+    "энергоблок",
+    "отключение света",
+    "энергообъект",
+    "энергетичес",
   ],
   Инфобез: [
     "кибератак",
@@ -185,11 +202,15 @@ const CATEGORY_KEYWORDS = {
 const OIL_GAS_TERMS = [
   "нефтегаз",
   "нефть",
+  "нефтя",
   "газ",
+  "газов",
   "lng",
   "спг",
   "буров",
+  "бурени",
   "скважин",
+  "скважина",
   "газопровод",
   "трубопровод",
   "нефтепровод",
@@ -209,6 +230,7 @@ const OIL_GAS_TERMS = [
   "лукойл",
   "татнефть",
   "gazprom",
+  "gpn",
   "refinery",
   "pipeline",
   "oil",
@@ -246,6 +268,9 @@ const ENERGY_TERMS = [
   "гэс",
   "тсс",
   "энергообъект",
+  "энергоблок",
+  "отключение света",
+  "блэкаут",
 ];
 
 const PERIODS = {
@@ -253,8 +278,6 @@ const PERIODS = {
   "30d": { label: "30 дней", ms: 30 * 24 * 60 * 60 * 1000 },
   "90d": { label: "90 дней", ms: 90 * 24 * 60 * 60 * 1000 },
   "1y": { label: "1 год", ms: 365 * 24 * 60 * 60 * 1000 },
-  "3y": { label: "3 года", ms: 3 * 365 * 24 * 60 * 60 * 1000 },
-  all: { label: "Всё время", ms: null },
 };
 
 const MAX_FEED = 400;
@@ -589,8 +612,23 @@ function classifyCategories(blob) {
   return Array.from(new Set(hits));
 }
 
-function isOilGas(blob) {
-  return [...OIL_GAS_TERMS, ...ENERGY_TERMS].some((hint) => blob.includes(hint));
+function isEnergySource(source) {
+  const src = normalizeText(source);
+  return (
+    src.includes("oilprice") ||
+    src.includes("reuters") ||
+    src.includes("energy") ||
+    src.includes("bloomberg") ||
+    src.includes("газета") ||
+    src.includes("ведомости") ||
+    src.includes("коммерсант") ||
+    src.includes("рбк")
+  );
+}
+
+function isOilGas(blob, source) {
+  if ([...OIL_GAS_TERMS, ...ENERGY_TERMS].some((hint) => blob.includes(hint))) return true;
+  return isEnergySource(source);
 }
 
 function findThreatMatches(blob) {
@@ -606,7 +644,7 @@ function findThreatMatches(blob) {
 
 function hydrateItem(item) {
   const blob = normalizeText([item.title, item.summary].join(" "));
-  if (!isOilGas(blob)) return null;
+  if (!isOilGas(blob, item.source || "")) return null;
   return {
     ...item,
     published: item.published || "",
@@ -864,6 +902,155 @@ function downloadCsv() {
   alert("CSV выключен. Используйте Excel.");
 }
 
+function colLabel(idx) {
+  let n = idx + 1;
+  let label = "";
+  while (n > 0) {
+    n -= 1;
+    label = String.fromCharCode(65 + (n % 26)) + label;
+    n = Math.floor(n / 26);
+  }
+  return label;
+}
+
+function buildSheetXml(rows) {
+  const esc = (v) =>
+    (v || "")
+      .toString()
+      .replace(/\r?\n+/g, " ")
+      .trim()
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+  const rowXml = rows
+    .map((vals, rIdx) => {
+      const cells = vals
+        .map((v, cIdx) => {
+          const safe = /^[=+\-@]/.test(v || "") ? `'${v}` : v;
+          return `<c r="${colLabel(cIdx)}${rIdx + 1}" t="inlineStr"><is><t>${esc(safe)}</t></is></c>`;
+        })
+        .join("");
+      return `<row r="${rIdx + 1}">${cells}</row>`;
+    })
+    .join("");
+
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?>` +
+    `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
+    `<sheetData>${rowXml}</sheetData>` +
+    `</worksheet>`
+  );
+}
+
+// Minimal ZIP builder (store method, no compression) for XLSX packaging.
+function makeZip(files) {
+  const encoder = new TextEncoder();
+  const toBytes = (input) => (input instanceof Uint8Array ? input : encoder.encode(input));
+  const crcTable = (() => {
+    const table = [];
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let j = 0; j < 8; j++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      table[i] = c >>> 0;
+    }
+    return table;
+  })();
+  const crc32 = (buf) => {
+    let crc = 0 ^ -1;
+    for (let i = 0; i < buf.length; i++) crc = (crc >>> 8) ^ crcTable[(crc ^ buf[i]) & 0xff];
+    return (crc ^ -1) >>> 0;
+  };
+  const le32 = (n) => {
+    const b = new Uint8Array(4);
+    const dv = new DataView(b.buffer);
+    dv.setUint32(0, n, true);
+    return b;
+  };
+  const le16 = (n) => {
+    const b = new Uint8Array(2);
+    const dv = new DataView(b.buffer);
+    dv.setUint16(0, n, true);
+    return b;
+  };
+
+  let offset = 0;
+  const fileHeaders = [];
+  const centralRecords = [];
+
+  files.forEach(({ path, content }) => {
+    const data = toBytes(content);
+    const nameBytes = encoder.encode(path);
+    const crc = crc32(data);
+    const local = [
+      encoder.encode("PK\x03\x04"),
+      le16(20),
+      le16(0),
+      le16(0),
+      le16(0),
+      le16(0),
+      le32(crc),
+      le32(data.length),
+      le32(data.length),
+      le16(nameBytes.length),
+      le16(0),
+      nameBytes,
+      data,
+    ];
+    const localSize = local.reduce((s, chunk) => s + chunk.length, 0);
+    fileHeaders.push(local);
+
+    const central = [
+      encoder.encode("PK\x01\x02"),
+      le16(20),
+      le16(20),
+      le16(0),
+      le16(0),
+      le16(0),
+      le16(0),
+      le32(crc),
+      le32(data.length),
+      le32(data.length),
+      le16(nameBytes.length),
+      le16(0),
+      le16(0),
+      le16(0),
+      le16(0),
+      le32(0),
+      le32(offset),
+      nameBytes,
+    ];
+    const centralSize = central.reduce((s, chunk) => s + chunk.length, 0);
+    centralRecords.push({ bytes: central, size: centralSize });
+    offset += localSize;
+  });
+
+  const centralStart = offset;
+  const centralBytes = centralRecords.flatMap((r) => r.bytes);
+  const centralLength = centralBytes.reduce((s, c) => s + c.length, 0);
+
+  const end = [
+    encoder.encode("PK\x05\x06"),
+    le16(0),
+    le16(0),
+    le16(files.length),
+    le16(files.length),
+    le32(centralLength),
+    le32(centralStart),
+    le16(0),
+  ];
+
+  const all = [...fileHeaders.flat(), ...centralBytes, ...end];
+  const total = all.reduce((s, c) => s + c.length, 0);
+  const out = new Uint8Array(total);
+  let ptr = 0;
+  all.forEach((chunk) => {
+    out.set(chunk, ptr);
+    ptr += chunk.length;
+  });
+  return out;
+}
+
 function downloadExcel() {
   if (!state.filteredAll.length) {
     alert("Нет данных для выгрузки по текущим фильтрам");
@@ -872,48 +1059,67 @@ function downloadExcel() {
 
   const header = ["title", "source", "published", "link", "categories", "threat_matches", "summary"];
   const rows = state.filteredAll.map((item) => [
-    item.title,
-    item.source,
-    item.published,
-    item.link,
+    item.title || "",
+    item.source || "",
+    item.published || "",
+    item.link || "",
     (item.categories || []).join("; "),
     (item.threatMatches || []).join(" | "),
     item.summary || "",
   ]);
+  const sheet = buildSheetXml([header, ...rows]);
 
-  const sanitize = (value) => {
-    const str = (value || "").toString().replace(/\r?\n+/g, " ").trim();
-    if (/^[=+\-@]/.test(str)) return `'${str}`;
-    return str;
-  };
+  const files = [
+    {
+      path: "[Content_Types].xml",
+      content:
+        `<?xml version="1.0" encoding="UTF-8"?>` +
+        `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
+        `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
+        `<Default Extension="xml" ContentType="application/xml"/>` +
+        `<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>` +
+        `<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>` +
+        `</Types>`,
+    },
+    {
+      path: "_rels/.rels",
+      content:
+        `<?xml version="1.0" encoding="UTF-8"?>` +
+        `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+        `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>` +
+        `</Relationships>`,
+    },
+    {
+      path: "xl/_rels/workbook.xml.rels",
+      content:
+        `<?xml version="1.0" encoding="UTF-8"?>` +
+        `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+        `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>` +
+        `</Relationships>`,
+    },
+    {
+      path: "xl/workbook.xml",
+      content:
+        `<?xml version="1.0" encoding="UTF-8"?>` +
+        `<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
+        `<sheets><sheet name="ThreatFeed" sheetId="1" r:id="rId1"/></sheets>` +
+        `</workbook>`,
+    },
+    {
+      path: "xl/worksheets/sheet1.xml",
+      content: sheet,
+    },
+  ];
 
-  const cells = (values) =>
-    values
-      .map(
-        (value) =>
-          `<Cell><Data ss:Type="String">${sanitize(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")}</Data></Cell>`
-      )
-      .join("");
-
-  const xml = `<?xml version="1.0"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  <Worksheet ss:Name="ThreatFeed">
-    <Table>
-      <Row>${cells(header)}</Row>
-      ${rows.map((row) => `<Row>${cells(row)}</Row>`).join("")}
-    </Table>
-  </Worksheet>
-</Workbook>`;
-
-  const blob = new Blob([xml], { type: "application/vnd.ms-excel" });
+  const zipBytes = makeZip(files);
+  const blob = new Blob([zipBytes], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   const suffix = state.category === "Все" ? "all" : normalizeSlug(state.category);
   a.href = url;
-  a.download = `threat-feed-${suffix}.xml`;
+  a.download = `threat-feed-${suffix}.xlsx`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

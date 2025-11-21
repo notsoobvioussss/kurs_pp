@@ -278,16 +278,23 @@ ENERGY_TERMS = [
     "гэс",
     "эс",
     "энергообъект",
+    "энергоблок",
+    "отключение света",
+    "блэкаут",
 ]
 
 OIL_GAS_TERMS = [
     "нефтегаз",
     "нефть",
+    "нефтя",
     "газ",
+    "газов",
     "lng",
     "спг",
     "буров",
+    "бурени",
     "скважин",
+    "скважина",
     "газопровод",
     "трубопровод",
     "нефтепровод",
@@ -307,6 +314,7 @@ OIL_GAS_TERMS = [
     "лукойл",
     "татнефть",
     "gazprom",
+    "gpn",
     "refinery",
     "pipeline",
     "oil",
@@ -343,9 +351,16 @@ def classify(text: str) -> List[str]:
     return tags or ["Инфобез"]
 
 
-def is_oil_gas(text: str) -> bool:
+def is_energy_source(source: str) -> bool:
+    low = source.lower()
+    return any(key in low for key in ["energy", "oilprice", "reuters", "bloomberg", "рбк", "ведомости", "коммерсант", "газета"])
+
+
+def is_oil_gas(text: str, source: str) -> bool:
     low = text.lower()
-    return any(term in low for term in (*OIL_GAS_TERMS, *ENERGY_TERMS))
+    if any(term in low for term in (*OIL_GAS_TERMS, *ENERGY_TERMS)):
+        return True
+    return is_energy_source(source)
 
 
 def fetch_feed(source: Dict[str, str]) -> List[Dict[str, str]]:
@@ -369,7 +384,7 @@ def fetch_feed(source: Dict[str, str]) -> List[Dict[str, str]]:
         desc = first_text(item.find("description"))
         pub = parsed_date(first_text(item.find("pubDate")))
         blob = f"{title} {desc}"
-        if not is_oil_gas(blob):
+        if not is_oil_gas(blob, source["name"]):
             continue
         category = classify(blob)
         if not title or not link:
