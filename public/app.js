@@ -73,6 +73,15 @@ let state = {
   sources: [],
 };
 
+function normalizeText(value) {
+  return (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
 async function loadData() {
   try {
     const res = await fetch("./data/news.json", { cache: "no-store" });
@@ -91,7 +100,7 @@ async function loadData() {
 function applyFilters() {
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const search = state.search.toLowerCase();
+  const search = normalizeText(state.search);
   let items = [...state.items];
 
   if (state.category !== "Все") {
@@ -108,8 +117,9 @@ function applyFilters() {
 
   if (search) {
     items = items.filter((item) => {
-      const blob = `${item.title} ${item.summary} ${item.source}`.toLowerCase();
-      return blob.includes(search);
+      const categories = (item.categories || []).join(" ");
+      const blob = normalizeText([item.title, item.summary, item.source, categories].join(" "));
+      return blob && blob.includes(search);
     });
   }
 

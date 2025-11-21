@@ -15,33 +15,34 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, List, Optional
 
 
 FEEDS: List[Dict[str, str]] = [
     {
-        "name": "Google News: oil gas cyber attack",
-        "url": "https://news.google.com/rss/search?q=oil+gas+cyber+attack&hl=en&gl=US&ceid=US:en",
+        "name": "Google Новости: нефтегаз кибератаки",
+        "url": "https://news.google.com/rss/search?q=%D0%BD%D0%B5%D1%84%D1%82%D0%B5%D0%B3%D0%B0%D0%B7+%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D0%B0%D1%82%D0%B0%D0%BA%D0%B0&hl=ru&gl=RU&ceid=RU:ru",
     },
     {
-        "name": "Google News: pipeline incident fire explosion",
-        "url": "https://news.google.com/rss/search?q=pipeline+incident+fire+explosion&hl=en&gl=US&ceid=US:en",
+        "name": "Google Новости: газопровод авария взрыв",
+        "url": "https://news.google.com/rss/search?q=%D0%B3%D0%B0%D0%B7%D0%BE%D0%BF%D1%80%D0%BE%D0%B2%D0%BE%D0%B4+%D0%B0%D0%B2%D0%B0%D1%80%D0%B8%D1%8F+%D0%B2%D0%B7%D1%80%D1%8B%D0%B2&hl=ru&gl=RU&ceid=RU:ru",
     },
     {
-        "name": "Google News: refinery cyber security",
-        "url": "https://news.google.com/rss/search?q=refinery+cyber+security&hl=en&gl=US&ceid=US:en",
+        "name": "Google Новости: НПЗ кибербезопасность",
+        "url": "https://news.google.com/rss/search?q=%D0%9D%D0%9F%D0%97+%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%BD%D0%BE%D1%81%D1%82%D1%8C&hl=ru&gl=RU&ceid=RU:ru",
     },
     {
-        "name": "BleepingComputer",
-        "url": "https://www.bleepingcomputer.com/feed/",
+        "name": "SecurityLab (кибербезопасность)",
+        "url": "https://www.securitylab.ru/_services/export/rss/",
     },
     {
-        "name": "DarkReading",
-        "url": "https://www.darkreading.com/rss_simple.xml",
+        "name": "OilCapital (нефтегаз)",
+        "url": "https://oilcapital.ru/rss",
     },
     {
-        "name": "Rigzone (energy incidents)",
-        "url": "https://www.rigzone.com/news/rss/rigzone_latest.aspx",
+        "name": "ComNews (телеком/промышленность)",
+        "url": "https://www.comnews.ru/rss",
     },
 ]
 
@@ -60,6 +61,16 @@ KEYWORDS = {
         "refinery",
         "terminal",
         "shutdown",
+        "проникновение",
+        "несанкционирован",
+        "пожар",
+        "взрыв",
+        "газопровод",
+        "трубопровод",
+        "утечка газа",
+        "перекрыли",
+        "эвакуац",
+        "физический доступ",
     ],
     "Кибератаки ICS/SCADA": [
         "ransomware",
@@ -76,6 +87,16 @@ KEYWORDS = {
         "hack",
         "breach",
         "attack",
+        "кибератака",
+        "вирус",
+        "вредонос",
+        "vpn",
+        "scada",
+        "ics",
+        "асу тп",
+        "отр",
+        "диспетчерск",
+        "взлом",
     ],
     "Финансы и мошенничество": [
         "fraud",
@@ -86,6 +107,14 @@ KEYWORDS = {
         "blackmail",
         "stock",
         "market",
+        "мошеннич",
+        "финанс",
+        "расчёт",
+        "платеж",
+        "перевод",
+        "рынок",
+        "биржа",
+        "вымогатель",
     ],
     "Персонал и инсайдеры": [
         "insider",
@@ -95,6 +124,13 @@ KEYWORDS = {
         "phishing",
         "leaked",
         "whistleblower",
+        "инсайдер",
+        "сотрудник",
+        "подрядчик",
+        "фишинг",
+        "утечка",
+        "персонал",
+        "кадр",
     ],
     "Экология и безопасность": [
         "spill",
@@ -103,6 +139,14 @@ KEYWORDS = {
         "environment",
         "safety",
         "regulator",
+        "разлив",
+        "утечка",
+        "загрязн",
+        "эколог",
+        "безопасн",
+        "пожарная",
+        "сдт",
+        "росприрод",
     ],
 }
 
@@ -200,11 +244,14 @@ def run() -> None:
         "items": cleaned,
     }
 
-    out_path = "data/news.json"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-
-    print(f"Collected {len(cleaned)} items from {len(FEEDS)} feeds -> {out_path}")
+    root = Path(__file__).resolve().parents[1]
+    out_paths = [root / "data/news.json", root / "public/data/news.json"]
+    for out_path in out_paths:
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+    out_list = ", ".join(str(p) for p in out_paths)
+    print(f"Collected {len(cleaned)} items from {len(FEEDS)} feeds -> {out_list}")
 
 
 if __name__ == "__main__":
